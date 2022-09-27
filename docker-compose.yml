@@ -1,0 +1,49 @@
+version: "3.7"
+
+# TODO: postgreSQL에서 사용할 사용자 계정 및 비밀번호 세팅
+x-postgres-variables: &postgres-variables
+  POSTGRES_USER: 'sopiot'
+  POSTGRES_PASSWORD: 'p@ssW0rd!'
+
+services:
+  local-server:
+    image: sopiot/sopiot_local-server
+    environment:
+      # TODO: Middleware 호스트 주소, 실행중이 Middleware 주소로 세팅
+      MW_HOST: '192.168.50.226'
+      MW_PORT: 58131
+      <<: *postgres-variables
+    restart:
+      always
+    ports:
+      # Crawler가 Middleware로부터 받은 새로운 데이터를 publish 하는 포트
+      - "55558:5558"
+    depends_on:
+      - "postgres"
+
+  postgres:
+    image: postgres:12
+    environment: *postgres-variables
+    volumes:
+      - /usr/local/sopiot/postgres/data:/var/lib/postgresql/data
+      - /usr/local/sopiot/postgres/init:/docker-entrypoint-initdb.d
+    restart:
+      always
+    ports:
+      # postgreSQL 포트
+      - "65432:5432"
+    networks:
+      - default
+
+  arima:
+    image: sopiot/sopiot_arima
+    environment:
+      <<: *postgres-variables
+      # TODO: ARIMA 분석 샘플을 위한 설정, 분석할 대상 value service 명시
+      # ARIMA_TARGET: 'dust,CO2'
+    volumes:
+      - /usr/local/sopiot/models/stream:/app/local-server/local_server/data_analytics/stream/algorithms/models
+    restart:
+      always
+    depends_on:
+      - "postgres"
