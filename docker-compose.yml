@@ -11,7 +11,6 @@ services:
     environment:
       # TODO: Middleware 호스트 주소, 실행중이 Middleware 주소로 세팅
       MW_HOST: '192.168.50.226'
-      MW_PORT: 58131
       <<: *postgres-variables
     restart:
       always
