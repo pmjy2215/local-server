@@ -11,6 +11,8 @@ services:
     environment:
       # TODO: Middleware 호스트 주소, 실행중이 Middleware 주소로 세팅
       MW_HOST: '192.168.50.226'
+      # Default Middleware 포트 번호는 58132, 포트 번호가 default와 다를 경우 세팅
+      # MW_PORT: 58132
       <<: *postgres-variables
     restart:
       always
